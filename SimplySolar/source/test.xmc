@@ -1,0 +1,178 @@
+using Toybox.System as Sys;
+using Toybox.Math as Math;
+using SunPosition as Sunpos;
+
+
+(:debug)
+var     samples0 = [[46.5,-6.5, 163.03, 65.83],
+               [46,-6, 163.82, 66.41],
+               [-41,0,    0.98, 25.93],
+               [-3,0,     2.01,63.9],
+               [3,0,      2.58, 69.89],
+               [41,0,     177.11, 72.07],
+               [40,0,     176.95, 73.07],
+               [-40,0,    0.99, 26.93],
+               [-40,-40,   38.91, 16.31],
+               [-40,40,  322.67, 17.22],
+               [-20,100, 289.35, -15.64],
+               [20,-100,  64.62, -1.55],
+               [80,100,  283.05, 21.2],
+               [80,20,   200.83, 32.51],
+               [80,0,     178.94, 33.11],
+               [80,-40,    135.6, 30.47],
+               [80,-120,   55.89, 17.74],
+               [0, 0,     2.26, 66.89]
+               ];
+			   
+(:debug)
+var     samples1 = [[46.5,-6.5, 164.34, 60.31],
+               [46,-6, 165.06, 60.89],
+               [-41,0,    1.74, 31.44],
+               [-3,0,     4.23,69.38],
+               [3,0,      5.9, 75.36],
+               [41,0,     176.26, 66.53],
+               [40,0,     176.1, 67.53],
+               [-40,0,    1.76, 32.44],
+               [-40,-40,   42.52, 20.68],
+               [-40,40,  320.19, 22.25],
+               [-20,100, 284.03, -13.55],
+               [20,-100,  69.52, -4.3],
+               [80,100,  281.4, 15.89],
+               [80,20,   199.78, 27.05],
+               [80,0,     178.32, 27.59],
+               [80,-40,    135.79, 24.94],
+               [80,-120,   56.2, 12.23],
+               [0, 0,     4.92, 72.37]
+               ];
+			   
+//15:27:28
+(:debug)
+var     samples2 = [[46.5,-6.5,246.58,44.22],
+               [46,-6,247.52,44.1],
+               [-41,0,    310.85,14.86],
+               [-3,0,     295,36.23],
+               [3,0,      290.77,38.56],
+               [41,0,     257.29,41.46],
+               [40,0,     258.15,41.67],
+               [-40,0,    310.65,15.51],
+               [-40,-40,  348.57,31.2],
+               [-40,40,  283.84,-11.66]
+			   ];
+
+//12:18:58
+(:debug)
+var     samples3 = [[-20,100, 283.22,-18],
+               [20,-100,  70.71,0.46],
+               [80,100,  286.08,15.6],
+               [80,20,   204.85,27.24],
+               [80,0,     183.39,28.09],
+               [80,-40,    140.65,25.98],
+               [80,-120,   60.66,13.42],
+               [0, 0,     350.45,71.67]
+               ];
+
+//0,0,4.88,71.86,12:00:00
+
+var azerr = 0.01;
+var elerr = 0.1;
+               
+(:debug)
+function testit0() {
+	var i; for (i=0; i<18; i++) {
+		var line = samples0[i];
+		line[2] = Math.round(line[2] * 100) / 100;
+		var res = Sunpos.sun_position(2014,7,1, 12, 0, 0, Math.toRadians(line[0]), Math.toRadians(line[1]));
+		var azabs = (line[2]-res[0]).abs();
+        var elabs = (line[3]-res[1]).abs();
+		var az_ok = azabs < azerr;
+        var el_ok = elabs < elerr;
+        if ((az_ok && el_ok)) {
+        	Sys.print ("\nFor lat, long: " + line[0] + " " + line[1] + "  ");
+            Sys.println (" OK (<0.5 error)");
+		}
+        if (!el_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Elevation (Noaa,calc)   = " + line[3] + ", " + res[1] + "(error " + elabs + ")");
+        }
+        if (!az_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Azimuth (Noaa,calc)   = " + line[2] + ", " + res[0] + "(error " + azabs + ")");
+		}
+	}
+}
+
+(:debug)
+function testit1() {
+	var i; for (i=0; i<18; i++) {
+		var line = samples1[i];
+		line[2] = Math.round(line[2] * 100) / 100;
+		var res = Sunpos.sun_position(2020,8,2, 12, 0, 0, Math.toRadians(line[0]), Math.toRadians(line[1]));
+		var azabs = (line[2]-res[0]).abs();
+        var elabs = (line[3]-res[1]).abs();
+		var az_ok = azabs < azerr;
+        var el_ok = elabs < elerr;
+        if ((az_ok && el_ok)) {
+        	Sys.print ("\nFor lat, long: " + line[0] + " " + line[1] + "  ");
+            Sys.println (" OK (<0.5 error)");
+		}
+        if (!el_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Elevation (Noaa,calc)   = " + line[3] + ", " + res[1] + "(error " + elabs + ")");
+        }
+        if (!az_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Azimuth (Noaa,calc)   = " + line[2] + ", " + res[0] + "(error " + azabs + ")");
+		}
+	}
+}
+
+(:debug)
+function testit2() {
+	var i; for (i=0; i<10; i++) {
+		var line = samples2[i];
+		line[2] = Math.round(line[2] * 100) / 100;
+		var res = Sunpos.sun_position(2020,7,31, 15, 27, 28, Math.toRadians(line[0]), Math.toRadians(line[1]));
+		var azabs = (line[2]-res[0]).abs();
+        var elabs = (line[3]-res[1]).abs();
+		var az_ok = azabs < azerr;
+        var el_ok = elabs < elerr;
+        if ((az_ok && el_ok)) {
+        	Sys.print ("\nFor lat, long: " + line[0] + " " + line[1] + "  ");
+            Sys.println (" OK (<0.5 error)");
+		}
+        if (!el_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Elevation (Noaa,calc)   = " + line[3] + ", " + res[1] + "(error " + elabs + ")");
+        }
+        if (!az_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Azimuth (Noaa,calc)   = " + line[2] + ", " + res[0] + "(error " + azabs + ")");
+		}
+	}
+}
+
+(:debug)
+function testit3() {
+	var i; for (i=0; i<8; i++) {
+		var line = samples3[i];
+		line[2] = Math.round(line[2] * 100) / 100;
+		var res = Sunpos.sun_position(2020,7,31, 12, 18, 58, Math.toRadians(line[0]), Math.toRadians(line[1]));
+		var azabs = (line[2]-res[0]).abs();
+        var elabs = (line[3]-res[1]).abs();
+		var az_ok = azabs < azerr;
+        var el_ok = elabs < elerr;
+        if ((az_ok && el_ok)) {
+        	Sys.print ("\nFor lat, long: " + line[0] + " " + line[1] + "  ");
+            Sys.println (" OK (<0.5 error)");
+		}
+        if (!el_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Elevation (Noaa,calc)   = " + line[3] + ", " + res[1] + "(error " + elabs + ")");
+        }
+        if (!az_ok) {
+        	Sys.println("\nFor lat, long: " + line[0] + " " + line[1]);
+            Sys.println ("Azimuth (Noaa,calc)   = " + line[2] + ", " + res[0] + "(error " + azabs + ")");
+		}
+	}
+}
+

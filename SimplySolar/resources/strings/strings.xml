@@ -1,0 +1,7 @@
+<strings>
+    <string id="AppName" scope="glance">Solar Angles</string>
+    <string id="Title">Solar Angles</string>
+    <string id="Azimuth">Azimuth</string>
+    <string id="Elevation">Elevation</string>
+    <string id="NoGPS">acquiring GPS</string>
+</strings>

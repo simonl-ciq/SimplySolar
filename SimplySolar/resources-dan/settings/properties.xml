@@ -1,0 +1,7 @@
+<resources>
+	<strings>
+		<string id="DisplayTypeTitle">Hvilken vinkel vises?</string>
+		<string id="showAzimuth">Solretning</string>
+		<string id="showBearing">Skygge bærende</string>
+	</strings>
+</resources>

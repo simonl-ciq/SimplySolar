@@ -1,0 +1,7 @@
+<resources>
+	<strings>
+		<string id="DisplayTypeTitle">Which angle is shown?</string>
+		<string id="showAzimuth">Solar azimuth</string>
+		<string id="showBearing">Shadow bearing</string>
+	</strings>
+</resources>
