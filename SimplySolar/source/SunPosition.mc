@@ -47,9 +47,10 @@ function calc_time(year, month, day, hour, minute, sec) {
 	return time;
 }
 
-// returns remainder a/b - a can be float point, b must be integer
+// returns +ve remainder a/b - a can be float & -ve, b must be integer & +ve
 function myMod(a, b) {
-	return (a - ((a.toLong() / b) * b));
+	var m = (a - ((a.toLong() / b) * b));
+	return ((m < 0) ? (b + m) : m);
 }
 
 function meanLongitudeDegrees(time) {

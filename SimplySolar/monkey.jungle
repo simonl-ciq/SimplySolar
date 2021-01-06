@@ -1,8 +1,5 @@
 project.manifest = manifest.xml
 #
-sharedModule = "..\SunPosition"
-base.sourcePath=$(base.sourcePath);$(sharedModule)
-#
 launcherIcons = "..\launcher-icons"
 icon35x35 = "..\launcher-icons\icon-35x35"
 icon36x36 = "..\launcher-icons\icon-36x36"

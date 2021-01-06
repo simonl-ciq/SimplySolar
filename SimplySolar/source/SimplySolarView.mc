@@ -3,11 +3,12 @@ using Toybox.Graphics as Gfx;
 using Toybox.Application as App;
 using Toybox.Application.Properties as Props;
 using Toybox.Application.Storage as Storage;
-using Toybox.Math as Math;
 using Toybox.Time as Time;
 using Toybox.Position as Position;
 using Toybox.Time.Gregorian;
-using Toybox.System as Sys;
+//using Toybox.Math as Math;
+//using Toybox.System as Sys;
+
 using SunPosition as Sunpos;
 
 const	cSBearing = false;
@@ -64,7 +65,7 @@ class SimplySolarView extends Ui.View {
    			Places = temp;
    		}
 
-        View.initialize();
+   		View.initialize();
     }
 
     /* ======================== Position handling ========================== */
@@ -128,7 +129,10 @@ class SimplySolarView extends Ui.View {
 
 		var elView = View.findDrawableById("elevation");
 		var eletView = View.findDrawableById("eletitle");
-		
+//myInfo.position = Position.parse("43.0522, -116.2437", Position.GEO_DEG);
+// Home
+//    myInfo.position = Position.parse("53.3225, -2.6455", Position.GEO_DEG);
+
 		if (needGPS) {
 	    	if (myInfo == null || myInfo.accuracy == null || myInfo.accuracy < Position.QUALITY_POOR) {
 		    	myInfo = Position.getInfo();
@@ -146,6 +150,9 @@ class SimplySolarView extends Ui.View {
    			var loc = myInfo.position.toRadians();
     		var now = Time.now();
     		var today = Gregorian.info(now, Time.FORMAT_SHORT);
+//var degs = myInfo.position.toDegrees(); 
+//Sys.println(today.year + ", " + today.month + ", " + today.day + ", " + today.hour + "(" + utcHour(now) + ")" + ", " + today.min + ", " + today.sec + ", " + degs[0] + ", " + degs[1]);
+//var azimelev = Sunpos.sun_position(2021, 1, 3, 17, 5, 56, loc[0], loc[1]);
 			var azimelev = Sunpos.sun_position(today.year, today.month, today.day, utcHour(now), today.min, today.sec, loc[0], loc[1]);
     		if (SBearing) {
     			azimelev[0] = Sunpos.myMod((azimelev[0] + 180), 360);

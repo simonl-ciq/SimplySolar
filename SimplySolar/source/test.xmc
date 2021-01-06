@@ -1,6 +1,8 @@
 using Toybox.System as Sys;
 using Toybox.Math as Math;
 using SunPosition as Sunpos;
+using Toybox.Position as Position;
+using Toybox.Time.Gregorian;
 
 
 (:debug)
@@ -176,3 +178,31 @@ function testit3() {
 	}
 }
 
+(:debug)
+	var last = 0;
+(:debug)
+function testit4(d, h, one) {
+	var position = Position.parse("53.3225, -2.6455", Position.GEO_DEG);
+	    position = Position.parse("56, 10", Position.GEO_DEG);
+	var loc = position.toRadians();
+
+if (one) {
+		var m; for (m=0; m<60; m++) {
+			var ae = Sunpos.sun_position(2021, 1, d, h, m, 0, loc[0], loc[1]);
+			Sys.println("\t" + h + ":" + m + " => " + ae[0] + " (" + ae[1] + ")");
+		}
+} else {
+var done = false;
+	var m; for (m=0; m<60; m++) {
+		var ae = Sunpos.sun_position(2021, 1, d, h, m, 0, loc[0], loc[1]);
+		if (last != 0) {
+			var diff = (last - ae[0]);
+			if ((diff > 0 && !done && ae[1] > 0) || (diff < -1)) {
+				Sys.println(h + ":" + m + "  [" + last + "]" + " => " + ae[0] + " (" + ae[1] + ")");
+				done = true;
+			}
+		}
+		last = ae[0];
+	}
+}	
+}
