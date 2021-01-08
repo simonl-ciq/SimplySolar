@@ -47,10 +47,14 @@ function calc_time(year, month, day, hour, minute, sec) {
 	return time;
 }
 
-// returns +ve remainder a/b - a can be float & -ve, b must be integer & +ve
+// % operator returns remainder a/b  
 function myMod(a, b) {
-	var m = (a - ((a.toLong() / b) * b));
-	return ((m < 0) ? (b + m) : m);
+//	var m = (a - ((a.toLong() / b) * b)); // my first version - b must be integer
+	var d = (b < 0) ? -b : b;
+	var m = (a - ((a / d).toLong() * d));
+	var r = ((m < 0) ? (d + m) : m);
+
+	return ((b < 0) ? (r + b) : r);
 }
 
 function meanLongitudeDegrees(time) {
@@ -105,8 +109,9 @@ function localMeanSiderealTimeRadians(gmst, lon) {
 }
 
 function hourAngleRadians(lmst, ra) {
-//    return (((lmst - ra + math.pi) % (2 * math.pi)) - math.pi)
-    return Math.toRadians(myMod(Math.toDegrees(lmst - ra) + 180, 360) - 180);
+//    return (((lmst - ra + math.pi) % (2 * math.pi)) - math.pi) // Python
+//    return Math.toRadians(myMod(Math.toDegrees(lmst - ra) + 180, 360) - 180); // my first version
+	return myMod((lmst - ra) + Math.PI, 2*Math.PI) - Math.PI;
 }
 
 function elevationRadians(lat, dec, ha) {
@@ -127,7 +132,8 @@ function solarAzimuthRadiansCharlie(lat, dec, ha) {
     if (ha > 0) {
         az = az + Math.PI;
     } else {
-        az = Math.toRadians(myMod((3 * 180 - Math.toDegrees(az)), 360));
+//        az = Math.toRadians(myMod((3 * 180 - Math.toDegrees(az)), 360));
+		az = myMod((3 * Math.PI - az), (2 * Math.PI));
 	}
     return az;
 }
