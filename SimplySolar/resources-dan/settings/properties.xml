@@ -1,7 +1,12 @@
 <resources>
 	<strings>
-		<string id="DisplayTypeTitle">Hvilken vinkel vises?</string>
+		<string id="DisplayTypeTitle">Hvad er standardskærmen?</string>
 		<string id="showAzimuth">Solretning</string>
 		<string id="showBearing">Skygge bærende</string>
+		<string id="showLast">Sidst valgt i app</string>
+		<string id="PlacesTitle">Hvor mange decimaler?</string>
+		<string id="Zero">0</string>
+		<string id="One">1</string>
+		<string id="Two">2</string>
 	</strings>
 </resources>

@@ -1,18 +1,32 @@
 <resources>
 	<properties>
-		<property id="DisplayType" type="number"><!-- 0 means display Azimuth 1 means Shadow Bearing -->0</property>
+		<property id="DisplayType" type="number"><!-- 0 means display Azimuth 1 means Shadow Bearing -->2</property>
+		<property id="Places" type="number"><!-- Number of decimal places limited to 0/1 -->0</property>
 	</properties>
 	<settings>
 		<setting propertyKey="@Properties.DisplayType" title="@Strings.DisplayTypeTitle">
 			<settingConfig type="list">
 				<listEntry value="0">@Strings.showAzimuth</listEntry>
 				<listEntry value="1">@Strings.showBearing</listEntry>
+				<listEntry value="2">@Strings.showLast</listEntry>
+			</settingConfig>
+		</setting>
+		<setting propertyKey="@Properties.Places" title="@Strings.PlacesTitle">
+			<settingConfig type="list">
+				<listEntry value="0">@Strings.Zero</listEntry>
+				<listEntry value="1">@Strings.One</listEntry>
+				<listEntry value="2">@Strings.Two</listEntry>
 			</settingConfig>
 		</setting>
 	</settings>
 	<strings>
-		<string id="DisplayTypeTitle">Which angle is to be shown?</string>
+		<string id="DisplayTypeTitle">What is the default display?</string>
 		<string id="showAzimuth">Solar azimuth</string>
 		<string id="showBearing">Shadow bearing</string>
+		<string id="showLast">Last shown</string>
+		<string id="PlacesTitle">How many decimal places?</string>
+		<string id="Zero">0</string>
+		<string id="One">1</string>
+		<string id="Two">2</string>
 	</strings>
 </resources>

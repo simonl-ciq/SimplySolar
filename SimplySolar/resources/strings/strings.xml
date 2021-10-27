@@ -3,5 +3,6 @@
     <string id="Title">Solar Angles</string>
     <string id="Azimuth">Azimuth</string>
     <string id="Elevation">Elevation</string>
+    <string id="SolarNoon">Solar Noon</string>
     <string id="NoGPS">acquiring GPS</string>
 </strings>

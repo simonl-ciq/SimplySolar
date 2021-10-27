@@ -1,7 +1,9 @@
 using Toybox.Application;
+using Toybox.WatchUi;
 
 class SimplySolarApp extends Application.AppBase {
 	hidden var SolarView;
+	hidden var GlanceView;
 
     function initialize() {
         AppBase.initialize();
@@ -21,9 +23,23 @@ class SimplySolarApp extends Application.AppBase {
         return [ SolarView, new SimplySolarDelegate(SolarView) ];
     }
 
+    // New app settings have been received so trigger a UI update
+    function onSettingsChanged() {
+    	if (SolarView != null) {
+			SolarView.getDisplayType();
+			SolarView.getPrecision();
+    	    WatchUi.requestUpdate();
+    	}
+    	if (GlanceView != null) {
+			GlanceView.getDisplayType();
+    	    GlanceView.requestUpdate();
+    	}
+    }
+
 (:glance)
     function getGlanceView() {
-        return [ new SimplySolarGlanceView() ];
+        GlanceView = new SimplySolarGlanceView();
+        return [ GlanceView ];
     }
 
 }

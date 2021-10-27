@@ -1,7 +1,12 @@
 <resources>
 	<strings>
-		<string id="DisplayTypeTitle">Which angle is shown?</string>
+		<string id="DisplayTypeTitle">What is the default display?</string>
 		<string id="showAzimuth">Solar azimuth</string>
 		<string id="showBearing">Shadow bearing</string>
+		<string id="showLast">Last selected in-app</string>
+		<string id="PlacesTitle">How many decimal places?</string>
+		<string id="Zero">0</string>
+		<string id="One">1</string>
+		<string id="Two">2</string>
 	</strings>
 </resources>

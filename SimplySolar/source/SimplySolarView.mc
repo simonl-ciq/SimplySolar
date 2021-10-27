@@ -6,22 +6,24 @@ using Toybox.Application.Storage as Storage;
 using Toybox.Time as Time;
 using Toybox.Position as Position;
 using Toybox.Time.Gregorian;
+using Toybox.System as Sys;
+
 //using Toybox.Math as Math;
-//using Toybox.System as Sys;
 
 using SunPosition as Sunpos;
 
-const	cSBearing = false;
+const cSBearing = false;
 
 class SimplySolarView extends Ui.View {
 	
 	var myInfo = null;
 	var needGPS = true;
-	var Places = 0;
 	var Precision = "%.0f";
-	var SBearing = false;
+	var SBearing = cSBearing;
+	var SNoon = false;
 	
 	var Title = "Solar Angles";
+	var SolarNoon = "Solar Noon";
 	var Azimuth = "Azimuth";
 	var Bearing = "Shadow Bearing";
 	var Elevation = "Elevation";
@@ -29,7 +31,64 @@ class SimplySolarView extends Ui.View {
 
 // This function allows us to make for pre2.4.x devices e.g. fenix3
 	function utcHour(date) {
-		return (date.value() % Gregorian.SECONDS_PER_DAY) / Gregorian.SECONDS_PER_HOUR;
+		return (date.value().toNumber() % Gregorian.SECONDS_PER_DAY) / Gregorian.SECONDS_PER_HOUR;
+	}
+
+    function setNoon(sn) {
+    	SNoon = sn;
+    }
+
+    function setDisplayType(sb) {
+    	SBearing = sb;
+        if ( App has :Storage ) {
+	        Storage.setValue("shadow", SBearing);
+		} else {
+	        App.getApp().setProperty("shadow", SBearing);
+		}
+	}
+
+	function getDisplayType() {
+		var temp;
+		if ( App has :Properties ) {
+	        temp = Props.getValue("DisplayType");
+	    } else {
+	        temp = App.getApp().getProperty("DisplayType");
+	    }
+       	if (temp == null || !(temp instanceof Number)) {
+       		temp = 2;
+       	}
+   		if (temp == 2) {
+   			if ( App has :Storage ) {
+   				temp = Storage.getValue("shadow");
+   				if (temp == null) {
+   					Storage.setValue("shadow", cSBearing);
+   					temp = cSBearing;
+   				}
+			} else {
+				temp = App.getApp().getProperty("shadow");
+	    		if (temp == null) {
+		        	App.getApp().setProperty("shadow", cSBearing);
+				    temp = cSBearing;
+		    	}
+			}
+	   		setDisplayType(temp);
+   		} else {
+	       	setDisplayType(temp != 0);
+   		}
+	}
+
+    function getPrecision() {
+		var temp;
+		if ( App has :Properties ) {
+	        temp = Props.getValue("Places");
+	    } else {
+	        temp = App.getApp().getProperty("Places");
+	    }
+       	if (temp == null || !(temp instanceof Number) || temp > 2 || temp < 0) {
+       		temp = 0;
+       	}
+
+		Precision = "%." + temp.toString() + "f";
 	}
 
     function initialize() {
@@ -40,30 +99,14 @@ class SimplySolarView extends Ui.View {
         if (temp != null ) {Azimuth = temp;}
         temp = Ui.loadResource( Rez.Strings.Elevation );
         if (temp != null ) {Elevation = temp;}
+        temp = Ui.loadResource( Rez.Strings.SolarNoon );
+        if (temp != null ) {SolarNoon = temp;}
         temp = Ui.loadResource( Rez.Strings.NoGPS );
         if (temp != null ) {NoGPS = temp;}
 
-		if ( App has :Properties ) {
-	        temp = Props.getValue("DisplayType");
-	    } else {
-	        temp = App.getApp().getProperty("DisplayType");
-	    }
-       	SBearing = (temp != null && temp instanceof Number) ? (temp != 0) : cSBearing;
-
-        if ( App has :Storage ) {
-	    	temp = Storage.getValue("places");
-	        if (temp == null) {
-		        Storage.setValue("places", Places);
-    		}
-		} else {
-	        temp = App.getApp().getProperty("places");
-	        if (temp == null) {
-		        App.getApp().setProperty("places", Places);
-    		}
-		}
-		if (temp != null) {
-   			Places = temp;
-   		}
+        getDisplayType();
+        getPrecision();
+//        getNoon();
 
    		View.initialize();
     }
@@ -74,20 +117,6 @@ class SimplySolarView extends Ui.View {
     	myInfo = info;
         Ui.requestUpdate();
     }
-
-    function setPrecision(p) {
-		var azView = View.findDrawableById("azimuth");
-		var elView = View.findDrawableById("elevation");
-
-		Places = p;
-        if ( App has :Storage ) {
-	        Storage.setValue("places", Places);
-		} else {
-	        App.getApp().setProperty("places", Places);
-		}
-		Precision = "%." + Places.toString() + "f";
-//		doFont(azView, elView, Places);
-	}
 
     // Load your resources here
     function onLayout(dc) {
@@ -102,8 +131,6 @@ class SimplySolarView extends Ui.View {
 		var eletView = View.findDrawableById("eletitle");
 		eletView.setText(Elevation);
 
-		setPrecision(Places);
-		
 		myInfo = Position.getInfo();
         if (myInfo == null || myInfo.accuracy < Position.QUALITY_POOR) {
             Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
@@ -123,7 +150,8 @@ class SimplySolarView extends Ui.View {
     	var el = "";
     	var azit = Azimuth;
     	var elet = Elevation;
-
+		var azimelev;
+		
 		var azView = View.findDrawableById("azimuth");
 		var azitView = View.findDrawableById("azititle");
 
@@ -132,6 +160,8 @@ class SimplySolarView extends Ui.View {
 //myInfo.position = Position.parse("43.0522, -116.2437", Position.GEO_DEG);
 // Home
 //    myInfo.position = Position.parse("53.3225, -2.6455", Position.GEO_DEG);
+// The study!
+//myInfo.position = Position.parse("53.32257, -2.6454", Position.GEO_DEG);
 
 		if (needGPS) {
 	    	if (myInfo == null || myInfo.accuracy == null || myInfo.accuracy < Position.QUALITY_POOR) {
@@ -149,21 +179,32 @@ class SimplySolarView extends Ui.View {
 		if (myAccuracy > Position.QUALITY_NOT_AVAILABLE && myInfo.position != null) {
    			var loc = myInfo.position.toRadians();
     		var now = Time.now();
-    		var today = Gregorian.info(now, Time.FORMAT_SHORT);
-//var degs = myInfo.position.toDegrees(); 
-//Sys.println(today.year + ", " + today.month + ", " + today.day + ", " + today.hour + "(" + utcHour(now) + ")" + ", " + today.min + ", " + today.sec + ", " + degs[0] + ", " + degs[1]);
-//var azimelev = Sunpos.sun_position(2021, 1, 3, 17, 5, 56, loc[0], loc[1]);
-			var azimelev = Sunpos.sun_position(today.year, today.month, today.day, utcHour(now), today.min, today.sec, loc[0], loc[1]);
-    		if (SBearing) {
-    			azimelev[0] = Sunpos.myMod((azimelev[0] + 180), 360);
-    			azit = Bearing;
-    		} else {
-    			azit = Azimuth;
-    		}
+    		var today;
     		
-			az = azimelev[0].format(Precision);
-			if (az.equals("360")) { az = "0"; }
-			else if (az.equals("360.0")) { az = "0.0"; }
+    		if (!SNoon) {
+//var degs = myInfo.position.toDegrees();
+//Sys.println(today.year + ", " + today.month + ", " + today.day + ", " + today.hour + "(" + utcHour(now) + ")" + ", " + today.min + ", " + today.sec + ", " + degs[0] + ", " + degs[1]);
+//var azimelev = Sunpos.sunPosition(2021, 2, 13, 12, 24, 45, loc[0], loc[1]);
+	    		today = Gregorian.info(now, Time.FORMAT_SHORT);
+				azimelev = Sunpos.sunPosition(today.year, today.month, today.day, utcHour(now), today.min, today.sec, loc[0], loc[1]);
+    			if (SBearing) {
+    				azimelev[0] = Sunpos.myMod((azimelev[0] + 180), 360);
+    				azit = Bearing;
+	    		} else {
+    				azit = Azimuth;
+    			}
+				az = azimelev[0].format(Precision);
+				if (az.equals("360")) { az = "0"; }
+				else if (az.equals("360.0")) { az = "0.0"; }
+			} else {
+		   		var sc = new SunCalc();
+				var noon = sc.calculate(now, loc[0], loc[1], NOON);
+    			var noonstring = sc.momentToString(noon, -27, "", "");
+				az = noonstring[0];
+	    		today = Gregorian.info(noon, Time.FORMAT_SHORT);
+				azimelev = Sunpos.sunPosition(today.year, today.month, today.day, utcHour(noon).toNumber(), today.min, today.sec, loc[0], loc[1]);
+   				azit = SolarNoon;
+			}
 			el = azimelev[1].format(Precision);
 			if (myAccuracy == Position.QUALITY_LAST_KNOWN) {
 				azView.setColor(Gfx.COLOR_LT_GRAY);
@@ -198,12 +239,33 @@ class SimplySolarView extends Ui.View {
 (:glance)
 class SimplySolarGlanceView extends Ui.GlanceView {
 	var vcentre = 80;
-	var SBearing = false;
+	var SBearing = cSBearing;
 
 	function initialize() {
-		var temp = Props.getValue("DisplayType");
-       	SBearing = (temp != null && temp instanceof Number) ? (temp != 0) : cSBearing;
+		getDisplayType();
 		GlanceView.initialize();
+	}
+
+    function setDisplayType(sb) {
+    	SBearing = sb;
+        Storage.setValue("shadow", SBearing);
+	}
+
+	function getDisplayType() {
+		var temp;
+        temp = Props.getValue("DisplayType");
+       	if (temp == null || !(temp instanceof Number)) {
+       		temp = 2;
+       	}
+   		if (temp == 2) {
+			temp = Storage.getValue("shadow");
+			if (temp == null) {
+				temp = cSBearing;
+			}
+	   		setDisplayType(temp);
+   		} else {
+	       	setDisplayType(temp != 0);
+   		}
 	}
 
 	function onLayout(dc) {
@@ -223,24 +285,24 @@ class SimplySolarGlanceView extends Ui.GlanceView {
 		var myAccuracy = (!(myInfo has :accuracy) || myInfo.accuracy == null) ? Position.QUALITY_GOOD : myInfo.accuracy;
 		if (myAccuracy > Position.QUALITY_NOT_AVAILABLE && myInfo.position != null) {
 			var loc = myInfo.position.toRadians();
-    		var today = Gregorian.utcInfo(Time.now(), Time.FORMAT_SHORT);
-    		var azimelev = Sunpos.sun_position(today.year, today.month, today.day, today.hour, today.min, today.sec, loc[0], loc[1]);
-    		if (SBearing) {
-    			azimelev[0] = Sunpos.myMod((azimelev[0] + 180), 360);
-    			azit = "b";
-    		} else {
-    			azit = "a";
-    		}
+   			var today = Gregorian.utcInfo(Time.now(), Time.FORMAT_SHORT);
+   			var azimelev = Sunpos.sunPosition(today.year, today.month, today.day, today.hour, today.min, today.sec, loc[0], loc[1]);
+			if (SBearing) {
+				azimelev[0] = Sunpos.myMod((azimelev[0] + 180), 360);
+				azit = "s";
+			} else {
+				azit = "a";
+			}
 			az = azimelev[0].format("%.0f");
 			if (az.equals("360")) {az = "0";}
-			az = azit+":"+az+"°";
-			el = "e:"+azimelev[1].format("%.0f")+"°";
+			az = azit+": "+az+"°";
+			el = "e: "+azimelev[1].format("%.0f")+"°";
 		}
 		dc.setColor(Graphics.COLOR_BLACK,Graphics.COLOR_BLACK);
 		dc.clear();
 		dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_TRANSPARENT);
         var AppName = Ui.loadResource( Rez.Strings.AppName );
-        if (AppName == null ) {AppName = "Solar Angles";}
+		if (AppName == null ) {AppName = "Solar Angles";}
 		dc.drawText(0, 0, Gfx.FONT_SMALL, AppName, Gfx.TEXT_JUSTIFY_LEFT);
 		dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
 		if (myInfo.accuracy == Position.QUALITY_LAST_KNOWN) {

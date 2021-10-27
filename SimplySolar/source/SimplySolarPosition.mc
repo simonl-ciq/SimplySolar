@@ -139,7 +139,7 @@ function solarAzimuthRadiansCharlie(lat, dec, ha) {
 }
 
 // lat & lon are in radians
-function sun_position(year, month, day, hour, minute, sec, lat, lon) {
+function sunPosition(year, month, day, hour, minute, sec, lat, lon) {
 
     var time = calc_time(year, month, day, hour, minute, sec);
     hour = hour + minute / 60.0 + sec / 3600.0;
